@@ -42,10 +42,17 @@ describe "Pokemon" do
 
   describe "BONUS" do
 
-    before do
-      @sql_runner.execute_create_hp_column
-      Pokemon.save('Pikachu', 'electric', @db)
-      Pokemon.save('Magikarp', 'water', @db)
+    before do |example|
+      unless example.metadata[:skip_before]
+        @sql_runner.execute_create_hp_column
+        Pokemon.save('Pikachu', 'electric', @db)
+        Pokemon.save('Magikarp', 'water', @db)
+      end
+    end
+
+    # remove the 'x' before 'it' to run these tests
+    xit "checks that a new migration file has been created", :skip_before do
+      expect(File).to exist("db/alter_table_migration.sql")
     end
 
     let(:pikachu){Pokemon.find(1, @db)}
@@ -53,6 +60,7 @@ describe "Pokemon" do
 
     # remove the 'x' before 'it' to run these tests
     it "knows that a pokemon have a default hp of 60" do
+
       # The find method should create a new Pokemon object with an id, type, name AND hp after selecting their row from the database by their id number.
       # remember to also update the initialize method to accept an argument of hp that defaults to nil if not set (so it still passes the non-bonus tests)
       expect(@db.execute("SELECT hp FROM pokemon").flatten.first).to eq(60)
