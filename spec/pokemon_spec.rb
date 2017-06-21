@@ -51,7 +51,7 @@ describe "Pokemon" do
     end
 
     # remove the 'x' before 'it' to run these tests
-    xit "checks that a new migration file has been created", :skip_before do
+    it "checks that a new migration file has been created", :skip_before do
       expect(File).to exist("db/alter_table_migration.sql")
     end
 

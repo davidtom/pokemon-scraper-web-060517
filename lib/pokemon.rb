@@ -16,11 +16,23 @@ class Pokemon
   end
 
   def self.find(id, db)
-    results = db.execute("SELECT id, name, type FROM pokemon WHERE id = ?", [id]).flatten
-    Pokemon.new(results[1]).tap do |pokemon|
+    #check if there is an hp column or not and run corresponding query
+    if db.execute("PRAGMA table_info(pokemon)").flatten.include?("hp")
+      results = db.execute("SELECT id, name, type, hp FROM pokemon WHERE id = ?", [id])[0]
+    else
+      results = db.execute("SELECT id, name, type FROM pokemon WHERE id = ?", [id])[0]
+    end
+    poke = Pokemon.new(results[1]).tap do |pokemon|
       pokemon.id = results[0]
       pokemon.type = results[2]
-      pokemon.hp = 60
+      pokemon.hp = results[3]
     end
+  end
+
+  def alter_hp(new_hp, db)
+    sql = <<-SQL
+    UPDATE pokemon SET hp = ? WHERE id = ?;
+    SQL
+    db.execute(sql, new_hp, self.id)
   end
 end
